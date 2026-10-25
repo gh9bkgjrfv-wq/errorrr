@@ -1,6 +1,21 @@
-mysql -u root -p
+-- 1. Database eka hadanawa saha eka use karanawa
 CREATE DATABASE bank;
 USE bank;
+
+-- 2. BRANCH Table eka hadanawa
+CREATE TABLE BRANCH (
+    Branch_ID INT PRIMARY KEY,
+    Location VARCHAR(100)
+);
+
+-- 3. CUSTOMER Table eka hadanawa
+CREATE TABLE CUSTOMER (
+    Cust_Id INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Address VARCHAR(255)
+);
+
+-- 4. ACCOUNT Table eka hadanawa
 CREATE TABLE ACCOUNT (
     Acc_Id BIGINT PRIMARY KEY,
     Acc_Type VARCHAR(50),
@@ -10,6 +25,44 @@ CREATE TABLE ACCOUNT (
     FOREIGN KEY (Cust_Id) REFERENCES CUSTOMER(Cust_Id),
     FOREIGN KEY (Branch_Id) REFERENCES BRANCH(Branch_ID)
 );
+
+-- 5. Venues Table eka hadanawa
+CREATE TABLE Venues (
+    VenueID INT PRIMARY KEY,
+    VenueName VARCHAR(100),
+    City VARCHAR(100),
+    Capacity INT
+);
+
+-- 6. Events Table eka hadanawa
+CREATE TABLE Events (
+    EventID INT PRIMARY KEY,
+    EventName VARCHAR(100),
+    EventType VARCHAR(50),
+    VenueID INT,
+    FOREIGN KEY (VenueID) REFERENCES Venues(VenueID)
+);
+
+-- 7. Tickets Table eka hadanawa (passe ALTER command eka wada karanna kalin 'Price' widihata damma)
+CREATE TABLE Tickets (
+    TicketID INT PRIMARY KEY,
+    EventID INT,
+    Price DECIMAL(10,2),
+    Status VARCHAR(50),
+    FOREIGN KEY (EventID) REFERENCES Events(EventID)
+);
+
+-- 8. Attendees Table eka hadanawa
+CREATE TABLE Attendees (
+    AttendeeID INT PRIMARY KEY,
+    AttendeeName VARCHAR(100)
+);
+
+
+-- TABLES WALATA DATA DANNA (INSERT DATA)
+
+
+-- Venues walata data danna
 INSERT INTO Venues (VenueID, VenueName, City, Capacity) VALUES
 (1, 'Grand Hall A', 'New York', 500),
 (2, 'Sunset Pavilion', 'Los Angeles', 200),
@@ -17,34 +70,87 @@ INSERT INTO Venues (VenueID, VenueName, City, Capacity) VALUES
 (4, 'Bayview Arena', 'San Francisco', 400),
 (5, 'Metro Convention Hall', 'Boston', 300),
 (6, 'Oasis Event Center', 'Seattle', 250);
+
+-- CUSTOMER walata data danna (Cust_Id 1002 ekath damma)
+INSERT INTO CUSTOMER (Cust_Id, Name, Address) VALUES
+(1001, 'Mohamad Paul', 'Colombo'),
+(1002, 'Aruna Moorthy', 'Trincomalee');
+
+-- BRANCH walata data danna
+INSERT INTO BRANCH (Branch_ID, Location) VALUES
+(1, 'Kandy'),
+(2, 'Colombo');
+
+-- Events walata data danna
+INSERT INTO Events (EventID, EventName, EventType, VenueID) VALUES
+(101, 'Tech Conference', 'Conference', 1),
+(102, 'Music Concert', 'Concert', 2);
+
+-- Tickets walata data danna
+INSERT INTO Tickets (TicketID, EventID, Price, Status) VALUES
+(1, 101, 150.00, 'Confirmed'),
+(2, 101, 150.00, 'Confirmed'),
+(3, 102, 75.00, 'Pending');
+
+-- Attendees walata data danna ('N' akuren patan ganna nama ekath damma)
+INSERT INTO Attendees (AttendeeID, AttendeeName) VALUES
+(1, 'Nuwan Geethika'),
+(2, 'Nimal Perera'),
+(3, 'Amara Silva');
+
+
+-- ALTER SAHA UPDATE COMMANDS RUN KARANNA
+
+
+-- Tickets table eke Price eka TicketPrice widihata rename karanawa
 ALTER TABLE Tickets 
 RENAME COLUMN Price TO TicketPrice;
+
+-- Cust_Id 1002 ge address eka update karanawa
+UPDATE CUSTOMER 
+SET Address = 'Modare, Mattakuliya' 
+WHERE Cust_Id = 1002;
+
+
+-- SELECT QUERIES SAHA ANITH COMMANDS
+
+
+-- i. Hama event ekakatama wikunapu total tickets ganana pennanna
 SELECT E.EventID, E.EventName, COUNT(T.TicketID) AS TotalTicketsSold
 FROM Events E
 LEFT JOIN Tickets T ON E.EventID = T.EventID
 GROUP BY E.EventID, E.EventName;
+
+-- ii. Hama event ekakama average ticket price eka hoyanna
 SELECT E.EventID, E.EventName, AVG(T.TicketPrice) AS AverageTicketPrice
 FROM Events E
 LEFT JOIN Tickets T ON E.EventID = T.EventID
 GROUP BY E.EventID, E.EventName;
+
+-- iii. Venas (Distinct) Event types tika pennanna
 SELECT DISTINCT EventType 
 FROM Events;
-SELECT * 
-FROM Attendees 
+
+-- iv. 'N' akuren patan ganna Attendees lava hoyanna
+SELECT * FROM Attendees 
 WHERE AttendeeName LIKE 'N%';
+
+-- v. Confirmed status thiyena attendees la 1 ta wada inna events hoyanna
 SELECT E.EventID, E.EventName, COUNT(T.TicketID) AS ConfirmedAttendeesCount
 FROM Events E
 JOIN Tickets T ON E.EventID = T.EventID
 WHERE T.Status = 'Confirmed'
 GROUP BY E.EventID, E.EventName
 HAVING COUNT(T.TicketID) > 1;
+
+-- vi. Tickets table eke structure eka balanna
 DESCRIBE Tickets;
-UPDATE CUSTOMER 
-SET Address = 'Modare, Mattakuliya' 
-WHERE Cust_Id = 1002;
+
+-- vii. TicketPrice eka wadi ma idala adu ma ekata (DESC) arrange karala top 3 pennanna
 SELECT EventName, TicketPrice
 FROM Events
 JOIN Tickets ON Events.EventID = Tickets.EventID
-ORDER BY TicketPrice DESC,ASC
+ORDER BY TicketPrice DESC
 LIMIT 3;
+
 mysqldump -u root -p bank > bank.sql
