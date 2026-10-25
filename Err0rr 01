@@ -1,0 +1,50 @@
+mysql -u root -p
+CREATE DATABASE bank;
+USE bank;
+CREATE TABLE ACCOUNT (
+    Acc_Id BIGINT PRIMARY KEY,
+    Acc_Type VARCHAR(50),
+    Acc_Balance DECIMAL(12,2),
+    Cust_Id INT,
+    Branch_Id INT,
+    FOREIGN KEY (Cust_Id) REFERENCES CUSTOMER(Cust_Id),
+    FOREIGN KEY (Branch_Id) REFERENCES BRANCH(Branch_ID)
+);
+INSERT INTO Venues (VenueID, VenueName, City, Capacity) VALUES
+(1, 'Grand Hall A', 'New York', 500),
+(2, 'Sunset Pavilion', 'Los Angeles', 200),
+(3, 'Skyline Center', 'Chicago', 350),
+(4, 'Bayview Arena', 'San Francisco', 400),
+(5, 'Metro Convention Hall', 'Boston', 300),
+(6, 'Oasis Event Center', 'Seattle', 250);
+ALTER TABLE Tickets 
+RENAME COLUMN Price TO TicketPrice;
+SELECT E.EventID, E.EventName, COUNT(T.TicketID) AS TotalTicketsSold
+FROM Events E
+LEFT JOIN Tickets T ON E.EventID = T.EventID
+GROUP BY E.EventID, E.EventName;
+SELECT E.EventID, E.EventName, AVG(T.TicketPrice) AS AverageTicketPrice
+FROM Events E
+LEFT JOIN Tickets T ON E.EventID = T.EventID
+GROUP BY E.EventID, E.EventName;
+SELECT DISTINCT EventType 
+FROM Events;
+SELECT * 
+FROM Attendees 
+WHERE AttendeeName LIKE 'N%';
+SELECT E.EventID, E.EventName, COUNT(T.TicketID) AS ConfirmedAttendeesCount
+FROM Events E
+JOIN Tickets T ON E.EventID = T.EventID
+WHERE T.Status = 'Confirmed'
+GROUP BY E.EventID, E.EventName
+HAVING COUNT(T.TicketID) > 1;
+DESCRIBE Tickets;
+UPDATE CUSTOMER 
+SET Address = 'Modare, Mattakuliya' 
+WHERE Cust_Id = 1002;
+SELECT EventName, TicketPrice
+FROM Events
+JOIN Tickets ON Events.EventID = Tickets.EventID
+ORDER BY TicketPrice DESC,ASC
+LIMIT 3;
+mysqldump -u root -p bank > bank.sql
