@@ -1,156 +1,122 @@
--- 1. Database eka hadanawa saha eka use karanawa
-CREATE DATABASE bank;
-USE bank;
+CREATE DATABASE hospital_db;
+USE hospital_db;
 
--- 2. BRANCH Table eka hadanawa
-CREATE TABLE BRANCH (
-    Branch_ID INT PRIMARY KEY,
-    Location VARCHAR(100)
+CREATE TABLE PATIENT (
+    patientno INT PRIMARY KEY,
+    pname VARCHAR(50),
+    city VARCHAR(50),
+    phone VARCHAR(15)
 );
 
--- 3. CUSTOMER Table eka hadanawa
-CREATE TABLE CUSTOMER (
-    Cust_Id INT PRIMARY KEY,
-    Name VARCHAR(100),
-    Address VARCHAR(255)
+CREATE TABLE DOCTOR (
+    doctorno INT PRIMARY KEY,
+    dname VARCHAR(50),
+    specialization VARCHAR(50)
 );
 
--- 4. ACCOUNT Table eka hadanawa
-CREATE TABLE ACCOUNT (
-    Acc_Id BIGINT PRIMARY KEY,
-    Acc_Type VARCHAR(50),
-    Acc_Balance DECIMAL(12,2),
-    Cust_Id INT,
-    Branch_Id INT,
-    FOREIGN KEY (Cust_Id) REFERENCES CUSTOMER(Cust_Id),
-    FOREIGN KEY (Branch_Id) REFERENCES BRANCH(Branch_ID)
+CREATE TABLE WARD (
+    wardno INT PRIMARY KEY,
+    wardname VARCHAR(50),
+    city VARCHAR(50)
 );
 
--- 5. Venues Table eka hadanawa
-CREATE TABLE Venues (
-    VenueID INT PRIMARY KEY,
-    VenueName VARCHAR(100),
-    City VARCHAR(100),
-    Capacity INT
+CREATE TABLE ADMISSION (
+    admissionno INT PRIMARY KEY,
+    patientno INT,
+    wardno INT,
+    admission_date DATE,
+    discharge_date DATE
 );
 
--- 6. Events Table eka hadanawa
-CREATE TABLE Events (
-    EventID INT PRIMARY KEY,
-    EventName VARCHAR(100),
-    EventType VARCHAR(50),
-    VenueID INT,
-    FOREIGN KEY (VenueID) REFERENCES Venues(VenueID)
+CREATE TABLE APPOINTMENT (
+    appointmentno INT PRIMARY KEY,
+    appointment_date DATE,
+    patientno INT,
+    doctorno INT
 );
 
--- 7. Tickets Table eka hadanawa (passe ALTER command eka wada karanna kalin 'Price' widihata damma)
-CREATE TABLE Tickets (
-    TicketID INT PRIMARY KEY,
-    EventID INT,
-    Price DECIMAL(10,2),
-    Status VARCHAR(50),
-    FOREIGN KEY (EventID) REFERENCES Events(EventID)
+CREATE TABLE TREATMENT (
+    treatmentno INT PRIMARY KEY,
+    appointmentno INT,
+    description VARCHAR(100),
+    cost INT
 );
 
--- 8. Attendees Table eka hadanawa
-CREATE TABLE Attendees (
-    AttendeeID INT PRIMARY KEY,
-    AttendeeName VARCHAR(100)
-);
+ALTER TABLE ADMISSION ADD CONSTRAINT fk_pat FOREIGN KEY (patientno) REFERENCES PATIENT(patientno);
+ALTER TABLE ADMISSION ADD CONSTRAINT fk_ward FOREIGN KEY (wardno) REFERENCES WARD(wardno);
 
+ALTER TABLE APPOINTMENT ADD CONSTRAINT fk_appt_pat FOREIGN KEY (patientno) REFERENCES PATIENT(patientno);
+ALTER TABLE APPOINTMENT ADD CONSTRAINT fk_appt_doc FOREIGN KEY (doctorno) REFERENCES DOCTOR(doctorno);
 
--- TABLES WALATA DATA DANNA (INSERT DATA)
+ALTER TABLE TREATMENT ADD CONSTRAINT fk_treat_appt FOREIGN KEY (appointmentno) REFERENCES APPOINTMENT(appointmentno);
 
+DESCRIBE PATIENT;
+DESCRIBE DOCTOR;
+DESCRIBE WARD;
+DESCRIBE ADMISSION;
+DESCRIBE APPOINTMENT;
+DESCRIBE TREATMENT;
 
--- Venues walata data danna
-INSERT INTO Venues (VenueID, VenueName, City, Capacity) VALUES
-(1, 'Grand Hall A', 'New York', 500),
-(2, 'Sunset Pavilion', 'Los Angeles', 200),
-(3, 'Skyline Center', 'Chicago', 350),
-(4, 'Bayview Arena', 'San Francisco', 400),
-(5, 'Metro Convention Hall', 'Boston', 300),
-(6, 'Oasis Event Center', 'Seattle', 250);
+-- PATIENT Records
+INSERT INTO PATIENT VALUES (101, 'Kamal', 'Colombo', '0711234567');
+INSERT INTO PATIENT VALUES (102, 'Nimal', 'Batticaloa', '0779876543');
+INSERT INTO PATIENT VALUES (103, 'Sarah', 'Jaffna', '0751112233');
+INSERT INTO PATIENT VALUES (104, 'Ruwan', 'Colombo', '0709998877');
 
--- CUSTOMER walata data danna (Cust_Id 1002 ekath damma)
-INSERT INTO CUSTOMER (Cust_Id, Name, Address) VALUES
-(1001, 'Mohamad Paul', 'Colombo'),
-(1002, 'Aruna Moorthy', 'Trincomalee');
+-- DOCTOR Records
+INSERT INTO DOCTOR VALUES (1, 'Dr. Perera', 'Cardiology');
+INSERT INTO DOCTOR VALUES (2, 'Dr. Silva', 'Neurology');
 
--- BRANCH walata data danna
-INSERT INTO BRANCH (Branch_ID, Location) VALUES
-(1, 'Kandy'),
-(2, 'Colombo');
+-- WARD Records
+INSERT INTO WARD VALUES (1, 'Medical Ward', 'Colombo');
+INSERT INTO WARD VALUES (2, 'Surgical Ward', 'Batticaloa');
+INSERT INTO WARD VALUES (3, 'Paediatric Ward', 'Jaffna');
 
--- Events walata data danna
-INSERT INTO Events (EventID, EventName, EventType, VenueID) VALUES
-(101, 'Tech Conference', 'Conference', 1),
-(102, 'Music Concert', 'Concert', 2);
+-- ADMISSION Records
+INSERT INTO ADMISSION VALUES (1, 101, 1, '2026-10-01', '2026-10-10');
+INSERT INTO ADMISSION VALUES (2, 102, 2, '2026-10-05', '2026-10-12');
+INSERT INTO ADMISSION VALUES (3, 103, 3, '2026-10-06', '2026-10-06');
 
--- Tickets walata data danna
-INSERT INTO Tickets (TicketID, EventID, Price, Status) VALUES
-(1, 101, 150.00, 'Confirmed'),
-(2, 101, 150.00, 'Confirmed'),
-(3, 102, 75.00, 'Pending');
+-- APPOINTMENT Records
+INSERT INTO APPOINTMENT VALUES (1, '2026-10-02', 101, 1);
+INSERT INTO APPOINTMENT VALUES (2, '2026-10-07', 102, 2);
 
--- Attendees walata data danna ('N' akuren patan ganna nama ekath damma)
-INSERT INTO Attendees (AttendeeID, AttendeeName) VALUES
-(1, 'Nuwan Geethika'),
-(2, 'Nimal Perera'),
-(3, 'Amara Silva');
+-- TREATMENT Records
+INSERT INTO TREATMENT VALUES (1, 1, 'ECG Test', 15000);
+INSERT INTO TREATMENT VALUES (2, 2, 'MRI Scan', 65000);
+INSERT INTO TREATMENT VALUES (3, 1, 'Blood Test', 45000);
 
+UPDATE PATIENT 
+SET pname = 'Roshan' 
+WHERE patientno = 101;
 
--- ALTER SAHA UPDATE COMMANDS RUN KARANNA
+SELECT * FROM PATIENT 
+WHERE city = 'Batticaloa';
 
+SELECT * FROM PATIENT 
+WHERE city = 'Batticaloa' OR city = 'Jaffna';
 
--- Tickets table eke Price eka TicketPrice widihata rename karanawa
-ALTER TABLE Tickets 
-RENAME COLUMN Price TO TicketPrice;
+SELECT * FROM TREATMENT 
+WHERE cost > 50000;
 
--- Cust_Id 1002 ge address eka update karanawa
-UPDATE CUSTOMER 
-SET Address = 'Modare, Mattakuliya' 
-WHERE Cust_Id = 1002;
+SELECT DISTINCT p.pname 
+FROM PATIENT p
+JOIN APPOINTMENT a ON p.patientno = a.patientno
+JOIN TREATMENT t ON a.appointmentno = t.appointmentno
+WHERE t.cost > 50000;
 
+SELECT DISTINCT p.pname 
+FROM PATIENT p
+JOIN ADMISSION ad ON p.patientno = ad.patientno
+JOIN WARD w ON ad.wardno = w.wardno
+WHERE p.city = w.city;
 
--- SELECT QUERIES SAHA ANITH COMMANDS
+SELECT COUNT(*) AS No_Of_Wards 
+FROM WARD 
+WHERE city = 'Colombo';
 
+SELECT admissionno, admission_date, discharge_date 
+FROM ADMISSION 
+WHERE discharge_date >= admission_date;
 
--- i. Hama event ekakatama wikunapu total tickets ganana pennanna
-SELECT E.EventID, E.EventName, COUNT(T.TicketID) AS TotalTicketsSold
-FROM Events E
-LEFT JOIN Tickets T ON E.EventID = T.EventID
-GROUP BY E.EventID, E.EventName;
-
--- ii. Hama event ekakama average ticket price eka hoyanna
-SELECT E.EventID, E.EventName, AVG(T.TicketPrice) AS AverageTicketPrice
-FROM Events E
-LEFT JOIN Tickets T ON E.EventID = T.EventID
-GROUP BY E.EventID, E.EventName;
-
--- iii. Venas (Distinct) Event types tika pennanna
-SELECT DISTINCT EventType 
-FROM Events;
-
--- iv. 'N' akuren patan ganna Attendees lava hoyanna
-SELECT * FROM Attendees 
-WHERE AttendeeName LIKE 'N%';
-
--- v. Confirmed status thiyena attendees la 1 ta wada inna events hoyanna
-SELECT E.EventID, E.EventName, COUNT(T.TicketID) AS ConfirmedAttendeesCount
-FROM Events E
-JOIN Tickets T ON E.EventID = T.EventID
-WHERE T.Status = 'Confirmed'
-GROUP BY E.EventID, E.EventName
-HAVING COUNT(T.TicketID) > 1;
-
--- vi. Tickets table eke structure eka balanna
-DESCRIBE Tickets;
-
--- vii. TicketPrice eka wadi ma idala adu ma ekata (DESC) arrange karala top 3 pennanna
-SELECT EventName, TicketPrice
-FROM Events
-JOIN Tickets ON Events.EventID = Tickets.EventID
-ORDER BY TicketPrice DESC
-LIMIT 3;
-
-mysqldump -u root -p bank > bank.sql
+mysqldump -u root -p hospital_db > hospital_db.sql
